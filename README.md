@@ -1,4 +1,4 @@
-# edallal_contract
+# iq_home
 
 ## Project setup
 ```
