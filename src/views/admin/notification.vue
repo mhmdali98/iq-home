@@ -3,7 +3,7 @@
     <v-toolbar dense flat color="grey lighten-4">
       <v-toolbar-title class="pl-2">الاشعارات</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn color="#55AB88" dark @click="add">اضافة اشعار</v-btn>
+      <v-btn color="#55AB88" dark @click="rest()">اضافة اشعار</v-btn>
     </v-toolbar>
     <v-container class="grey lighten-5">
       <v-row class="mx-1">
@@ -43,7 +43,7 @@
               <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
                   <v-btn class="indigo--text" icon v-on="on" large>
-                    <v-icon l @click="edit1(item.id)" color="green">mdi-pencil-outline</v-icon>
+                    <v-icon l @click="edit(item.id)" color="green">mdi-pencil-outline</v-icon>
                   </v-btn>
                 </template>
                 <span>تعديل</span>
@@ -59,11 +59,11 @@
         </v-col>
       </v-row>
     </v-container>
-    <v-dialog v-model="detailsDialog" width="400" persistent>
+    <v-dialog v-model="detailsDialog" width="600" persistent>
       <v-card>
         <v-toolbar dark color="primary">
           <v-toolbar-title>
-            <h3>اضافة سؤال وجواب</h3>
+            <h3>اضافة اشعار</h3>
           </v-toolbar-title>
           <v-spacer />
           <v-btn @click="detailsDialog = false" icon>
@@ -74,16 +74,23 @@
         <v-container>
           <v-row>
             <v-col cols="12" sm="12" md="12">
+              <v-select
+                :items="typeOption"
+                label="اختر نوع الاشعار"
+                outlined
+                :rules="[v => !!v || 'يجب تحديد النوع']"
+                required
+                v-model="typeID"
+              ></v-select>
               <v-text-field
                 outlined
-                label=" السؤال : "
+                label=" عنوان الاشعار : "
                 v-model="name"
                 :rules="[v => !!v || 'هذا الحقل مطلوب']"
               />
-
               <v-text-field
                 outlined
-                label=" الجواب المختصر : "
+                label=" المقال المختصر : "
                 v-model="phone"
                 :rules="[v => !!v || 'هذا الحقل مطلوب']"
               />
@@ -91,7 +98,7 @@
                 outlined
                 name="input-7-4"
                 v-model="details"
-                label="اكتب الجواب الكامل هنا ..."
+                label="اكتب المقال الكامل هنا ..."
                 :rules="[v => !!v || 'هذا الحقل مطلوب']"
               ></v-textarea>
               <v-file-input
@@ -100,6 +107,45 @@
                 outlined
                 :rules="[v => !!v || 'هذا الحقل مطلوب']"
               ></v-file-input>
+              <v-select
+                :items="soursOption"
+                label="اختر المصدر"
+                outlined
+                :rules="[v => !!v || 'يجب تحديد المصدر']"
+                required
+                v-model="soursID"
+              ></v-select>
+
+              <div v-for="(input, k) in sections" :key="k + 'a'">
+                <v-card class="pa-5" outlined>
+                  <h3 class="mb-2">سكشن رقم ({{ k + 1 }}) :</h3>
+                  <v-file-input
+                    v-model="input.file"
+                    label="اختار صورة ال logo"
+                    outlined
+                    :rules="[v => !!v || 'هذا الحقل مطلوب']"
+                  ></v-file-input>
+                  <v-textarea
+                    outlined
+                    name="input-7-4"
+                    v-model="input.body"
+                    label="اكتب المقال الكامل هنا ..."
+                    :rules="[v => !!v || 'هذا الحقل مطلوب']"
+                  ></v-textarea>
+                  <v-row align="center">
+                    <v-col cols="12" md="1" v-show="k == sections.length - 1">
+                      <v-btn class="mx-2" fab dark small color="primary" @click="add(k)">
+                        <v-icon dark>mdi-plus</v-icon>
+                      </v-btn>
+                    </v-col>
+                    <v-col cols="12" md="1" v-show="k || (!k && sections.length > 1)">
+                      <v-btn class="mx-2" fab dark small color="pink" @click="remove(k)">
+                        <v-icon dark>mdi-minus</v-icon>
+                      </v-btn>
+                    </v-col>
+                  </v-row>
+                </v-card>
+              </div>
             </v-col>
           </v-row>
           <br />
@@ -168,6 +214,20 @@ import axios from "axios";
 export default {
   data() {
     return {
+      sections: [
+        {
+          file: "",
+          body: "",
+          cover: ""
+        }
+      ],
+      typeID: "",
+      typeOption: [
+        { text: "محلي", value: "LOCAL" },
+        { text: "عالمي", value: "INTERNATIONAL" }
+      ],
+      soursID: "",
+      soursOption: [],
       details: "",
       file: null,
       img_path: "",
@@ -187,9 +247,9 @@ export default {
         { sortable: false },
         { text: "النوع", value: "type" },
         { text: "العنوان", value: "title" },
-        { text: "عنوان مصغر", value: "subtitle" },
-        { text: "  الحالة ", value: "status" },
-        { text: "العمليات", value: "actions" }
+        // { text: "عنوان مصغر", value: "subtitle" },
+        { text: "  الحالة ", value: "status" }
+        // { text: "العمليات", value: "actions" }
       ],
       items: [],
       coontractCount: [],
@@ -199,6 +259,16 @@ export default {
     };
   },
   methods: {
+    add(index) {
+      this.sections.push({
+        file: "",
+        body: "",
+        cover: ""
+      });
+    },
+    remove(index) {
+      this.sections.splice(index, 1);
+    },
     rest() {
       this.name = "";
       this.phone = "";
@@ -211,49 +281,60 @@ export default {
       formData.append("file", this.file);
       // console.log(formData);
       this.loading2 = true;
-
       axios
         .post("file/upload", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
+            Accept: "multipart/form-data",
             access_token: `Bearer ${localStorage.getItem("tokin")}`
           }
         })
         .then(res => {
           //   console.log(res);
           this.img_path = res.data.url;
-          this.addLap();
+          this.uploadImg2();
         })
         .catch(err => {
           Swal.fire("خطا في رفع الصورة");
           this.loading2 = false;
         });
     },
-    uploadImg2() {
-      if (this.file) {
-        let formData = new FormData();
-        formData.append("file", this.file);
-        // console.log(formData);
-        this.loading2 = true;
-
-        axios
-          .post("file/upload", formData, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              access_token: `Bearer ${localStorage.getItem("tokin")}`
-            }
-          })
-          .then(res => {
-            //   console.log(res);
-            this.img_path = res.data.url;
-            this.editInfo();
-          })
-          .catch(err => {
-            Swal.fire("خطا في رفع الصورة");
-            this.loading2 = false;
+    async uploadImg2() {
+      for (let i = 0; i < this.sections.length; i++) {
+        if (this.sections[i].file) {
+          let formData = new FormData();
+          formData.append("file", this.sections[i].file);
+          // console.log(formData);
+          await axios
+            .post("file/upload", formData, {
+              headers: {
+                "Content-Type": "multipart/form-data",
+                Accept: "multipart/form-data",
+                access_token: `Bearer ${localStorage.getItem("tokin")}`
+              }
+            })
+            .then(res => {
+              //   console.log(res);
+              this.sections[i].cover = res.data.url;
+            })
+            .catch(err => {
+              Swal.fire("خطا في رفع الصورة");
+              this.loading2 = false;
+            });
+        } else {
+          Swal.fire({
+            title: "تاكد من اختيار كل الصور",
+            icon: "error",
+            confirmButtonText: "اغلاق"
           });
-      } else {
-        this.editInfo();
+          break;
+        }
+        let j = i;
+        j++;
+        if (this.sections.length == j) {
+          // console.log(this.sections);
+          this.addLap();
+        }
       }
     },
     editInfo() {
@@ -269,6 +350,8 @@ export default {
         axios
           .put("qna", cityData, {
             headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
               access_token: `Bearer ${localStorage.getItem("tokin")}`
             }
           })
@@ -302,14 +385,21 @@ export default {
       if (this.name && this.phone && this.img_path && this.details) {
         this.loading2 = true;
         const cityData = {
-          question: this.name,
-          logo: this.img_path,
-          shortAnswer: this.phone,
-          answer: this.details
+          type: this.typeID,
+          title: this.name,
+          subtitle: this.phone,
+          body: this.details,
+          cover: this.img_path,
+          sections: this.sections,
+          source: {
+            id: this.soursID
+          }
         };
         axios
-          .post("qna", cityData, {
+          .post("notification", cityData, {
             headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
               access_token: `Bearer ${localStorage.getItem("tokin")}`
             }
           })
@@ -344,6 +434,8 @@ export default {
       axios
         .get("notification/0/1000", {
           headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
             access_token: `Bearer ${localStorage.getItem("tokin")}`
           }
         })
@@ -354,6 +446,24 @@ export default {
         .catch(err => {
           this.loading = false;
         });
+    },
+    getSors() {
+      axios
+        .get("source", {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            access_token: `Bearer ${localStorage.getItem("tokin")}`
+          }
+        })
+        .then(res => {
+          this.soursOption = res.data;
+          for (let i = 0; i < this.soursOption.length; i++) {
+            this.soursOption[i].value = this.soursOption[i].id;
+            this.soursOption[i].text = this.soursOption[i].name;
+          }
+        })
+        .catch(err => {});
     },
     delet(id) {
       Swal.fire({
@@ -401,6 +511,7 @@ export default {
   },
   created() {
     this.rnData();
+    this.getSors();
   }
 };
 </script>

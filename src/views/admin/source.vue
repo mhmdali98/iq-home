@@ -32,22 +32,22 @@
             :search="search"
           >
             <template v-slot:item.actions="{ item }">
-              <!-- <v-tooltip bottom>
+              <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
                   <v-btn class="indigo--text" icon v-on="on" large>
                     <v-icon l @click="delet(item.id)" color="red">mdi-delete-outline</v-icon>
                   </v-btn>
                 </template>
                 <span>حذف</span>
-              </v-tooltip>-->
-              <v-tooltip bottom>
+              </v-tooltip>
+              <!-- <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
                   <v-btn class="indigo--text" icon v-on="on" large>
                     <v-icon l @click="edit(item.id)" color="green">mdi-pencil-outline</v-icon>
                   </v-btn>
                 </template>
                 <span>تعديل</span>
-              </v-tooltip>
+              </v-tooltip>-->
             </template>
             <template v-slot:no-data>
               <h3>لاتوجد بيانات لعرضها</h3>
@@ -204,8 +204,8 @@ export default {
         { text: "الرابط ", value: "webUrl" },
         { text: " رابط الفيسبوك ", value: "facebookUrl" },
         { text: "رابط تويتر ", value: "twitterUrl" },
-        { text: "رابط تلكرام", value: "telegramUrl" }
-        // { text: "العمليات", value: "actions" }
+        { text: "رابط تلكرام", value: "telegramUrl" },
+        { text: "العمليات", value: "actions" }
       ],
       items: [],
       coontractCount: [],
@@ -284,6 +284,8 @@ export default {
         axios
           .put("tip", cityData, {
             headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
               access_token: `Bearer ${localStorage.getItem("tokin")}`
             }
           })
@@ -327,6 +329,8 @@ export default {
         axios
           .post("source", cityData, {
             headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
               access_token: `Bearer ${localStorage.getItem("tokin")}`
             }
           })
@@ -361,6 +365,8 @@ export default {
       axios
         .get("source", {
           headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
             access_token: `Bearer ${localStorage.getItem("tokin")}`
           }
         })
@@ -384,7 +390,13 @@ export default {
       }).then(result => {
         if (result.value) {
           axios
-            .delete("Lab/deleteLab?ID=" + id)
+            .delete("source/" + id, {
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                access_token: `Bearer ${localStorage.getItem("tokin")}`
+              }
+            })
             .then(res => {
               this.rnData();
               Swal.fire({

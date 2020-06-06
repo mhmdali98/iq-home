@@ -32,14 +32,14 @@
             :search="search"
           >
             <template v-slot:item.actions="{ item }">
-              <!-- <v-tooltip bottom>
+              <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
                   <v-btn class="indigo--text" icon v-on="on" large>
                     <v-icon l @click="delet(item.id)" color="red">mdi-delete-outline</v-icon>
                   </v-btn>
                 </template>
                 <span>حذف</span>
-              </v-tooltip>-->
+              </v-tooltip>
               <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
                   <v-btn class="indigo--text" icon v-on="on" large>
@@ -272,6 +272,8 @@ export default {
         axios
           .put("tip", cityData, {
             headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
               access_token: `Bearer ${localStorage.getItem("tokin")}`
             }
           })
@@ -313,6 +315,8 @@ export default {
         axios
           .post("tip", cityData, {
             headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
               access_token: `Bearer ${localStorage.getItem("tokin")}`
             }
           })
@@ -347,6 +351,8 @@ export default {
       axios
         .get("tip/1000/0", {
           headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
             access_token: `Bearer ${localStorage.getItem("tokin")}`
           }
         })
@@ -370,7 +376,13 @@ export default {
       }).then(result => {
         if (result.value) {
           axios
-            .delete("Lab/deleteLab?ID=" + id)
+            .delete("tip/" + id, {
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                access_token: `Bearer ${localStorage.getItem("tokin")}`
+              }
+            })
             .then(res => {
               this.rnData();
               Swal.fire({

@@ -207,6 +207,8 @@ export default {
         axios
           .post("case", userData, {
             headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
               access_token: `Bearer ${localStorage.getItem("tokin")}`
             }
           })
@@ -241,6 +243,8 @@ export default {
       axios
         .get("case", {
           headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
             access_token: `Bearer ${localStorage.getItem("tokin")}`
           }
         })
@@ -259,6 +263,8 @@ export default {
       axios
         .get("city", {
           headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
             access_token: `Bearer ${localStorage.getItem("tokin")}`
           }
         })

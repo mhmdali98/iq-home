@@ -99,52 +99,64 @@ export default {
           admin: true
         },
         {
-          icon: "mdi-account-group ",
-          title: "المستخدمين",
-          link: "/users",
-          admin: true
-        },
-        {
-          icon: "mdi-city-variant ",
-          title: "المحافظات",
-          link: "/city",
-          admin: true
-        },
-        {
           icon: "mdi-virus",
           title: "الحالات",
           link: "/cases",
-          admin: true
-        },
-        {
-          icon: "mdi-card-account-phone",
-          title: "التواصل",
-          link: "/contact",
-          admin: true
-        },
-        {
-          icon: "mdi-account-voice",
-          title: "النصائح",
-          link: "/tips",
-          admin: true
-        },
-        {
-          icon: "mdi-source-repository-multiple",
-          title: "المصادر",
-          link: "/source",
-          admin: true
-        },
-        {
-          icon: "mdi-frequently-asked-questions ",
-          title: "الأسئلة",
-          link: "/qna",
-          admin: true
+          admin: false
         },
         {
           icon: "mdi-bell-ring",
           title: "الاشعارت",
           link: "/notification",
-          admin: true
+          admin: false
+        },
+        {
+          icon: "mdi-folder-multiple-image",
+          title: "الفديوات",
+          link: "/media",
+          admin: false
+        },
+        {
+          icon: "mdi-account-voice",
+          title: "النصائح",
+          link: "/tips",
+          admin: false
+        },
+        {
+          icon: "mdi-frequently-asked-questions ",
+          title: " الأسئلة و الاجوبة",
+          link: "/qna",
+          admin: false
+        },
+        {
+          icon: "mdi-alert-circle-check",
+          title: "تصحيح المفاهيم",
+          link: "/consept",
+          admin: false
+        },
+        {
+          icon: "mdi-source-repository-multiple",
+          title: "المصادر",
+          link: "/source",
+          admin: false
+        },
+        {
+          icon: "mdi-account-group ",
+          title: "المستخدمين",
+          link: "/users",
+          admin: false
+        },
+        {
+          icon: "mdi-city-variant ",
+          title: "المحافظات",
+          link: "/city",
+          admin: false
+        },
+        {
+          icon: "mdi-card-account-phone",
+          title: "التواصل",
+          link: "/contact",
+          admin: false
         }
       ],
 
@@ -179,19 +191,29 @@ export default {
   },
   computed: {
     username() {
-      // if (this.$store.state.policyNumber == "SUPERADMIN") {
-      //   this.analyticsItems[1].admin = true;
-      //   this.analyticsItems[2].admin = true;
-      //   this.analyticsItems[3].admin = true;
-      //   this.analyticsItems[4].admin = true;
-      //   this.analyticsItems[5].admin = true;
-      // } else if (this.$store.state.policyNumber == 2) {
-      //   this.analyticsItems[1].admin = false;
-      //   this.analyticsItems[2].admin = false;
-      //   this.analyticsItems[3].admin = true;
-      //   this.analyticsItems[4].admin = true;
-      //   this.analyticsItems[5].admin = true;
-      // }
+      if (this.$store.state.policyNumber == "SUPERADMIN") {
+        this.analyticsItems[1].admin = true;
+        this.analyticsItems[2].admin = true;
+        this.analyticsItems[3].admin = true;
+        this.analyticsItems[4].admin = true;
+        this.analyticsItems[5].admin = true;
+        this.analyticsItems[6].admin = true;
+        this.analyticsItems[7].admin = true;
+        this.analyticsItems[8].admin = true;
+        this.analyticsItems[9].admin = true;
+        this.analyticsItems[10].admin = true;
+      } else if (this.$store.state.policyNumber == "ADMIN") {
+        this.analyticsItems[1].admin = true;
+        this.analyticsItems[2].admin = true;
+        this.analyticsItems[3].admin = true;
+        this.analyticsItems[4].admin = true;
+        this.analyticsItems[5].admin = true;
+        this.analyticsItems[6].admin = true;
+        this.analyticsItems[7].admin = false;
+        this.analyticsItems[8].admin = false;
+        this.analyticsItems[9].admin = false;
+        this.analyticsItems[10].admin = false;
+      }
       return this.$store.state.fullname;
     }
   },

@@ -1,9 +1,9 @@
 <template>
   <div>
     <v-toolbar dense flat color="grey lighten-4">
-      <v-toolbar-title class="pl-2">التواصل</v-toolbar-title>
+      <v-toolbar-title class="pl-2">تصحيح المفاهيم</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn color="#55AB88" dark @click="detailsDialog = true">اضافة تواصل</v-btn>
+      <v-btn color="#55AB88" dark @click="detailsDialog = true">اضافة تصحيح</v-btn>
     </v-toolbar>
     <v-container class="grey lighten-5">
       <v-row class="mx-1">
@@ -31,6 +31,26 @@
             @page-count="pageCount = $event"
             :search="search"
           >
+            <template v-slot:item.type="{ item }">
+              <v-chip
+                class="ma-2"
+                color="amber darken-1"
+                text-color="white"
+                v-if="item.type == 'active'"
+              >{{ item.type }}</v-chip>
+              <v-chip
+                class="ma-2"
+                color="pink darken-1"
+                text-color="white"
+                v-if="item.type == 'deaths'"
+              >{{ item.type }}</v-chip>
+              <v-chip
+                class="ma-2"
+                color="teal"
+                text-color="white"
+                v-if="item.type == 'recovered'"
+              >{{ item.type }}</v-chip>
+            </template>
             <template v-slot:item.actions="{ item }">
               <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
@@ -40,14 +60,14 @@
                 </template>
                 <span>حذف</span>
               </v-tooltip>
-              <v-tooltip bottom>
+              <!-- <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
                   <v-btn class="indigo--text" icon v-on="on" large>
                     <v-icon l @click="edit(item.id)" color="green">mdi-pencil-outline</v-icon>
                   </v-btn>
                 </template>
                 <span>تعديل</span>
-              </v-tooltip>
+              </v-tooltip>-->
             </template>
             <template v-slot:no-data>
               <h3>لاتوجد بيانات لعرضها</h3>
@@ -63,7 +83,7 @@
       <v-card>
         <v-toolbar dark color="primary">
           <v-toolbar-title>
-            <h3>اضافة تواصل</h3>
+            <h3>اضافة تصحيح</h3>
           </v-toolbar-title>
           <v-spacer />
           <v-btn @click="detailsDialog = false" icon>
@@ -75,18 +95,23 @@
           <v-row>
             <v-col cols="12" sm="12" md="12">
               <v-text-field
-                outlined
-                label="اسم التواصل : "
-                class="mx-2"
-                v-model="name"
                 :rules="[v => !!v || 'هذا الحقل مطلوب']"
-              />
-              <v-text-field
-                type="number"
                 outlined
-                label="رقم الهاتف : "
-                v-model="phone"
-                :rules="numRules"
+                label=" عنوان التصحيح : "
+                v-model="title"
+              />
+              <v-textarea
+                outlined
+                name="input-7-4"
+                v-model="details"
+                label="اكتب المقالة هنا ..."
+                :rules="[v => !!v || 'هذا الحقل مطلوب']"
+              ></v-textarea>
+              <v-text-field
+                :rules="[v => !!v || 'هذا الحقل مطلوب']"
+                outlined
+                label="الرابط : "
+                v-model="linkUrl"
               />
             </v-col>
           </v-row>
@@ -96,46 +121,6 @@
           <v-spacer></v-spacer>
           <v-btn color="red darken-1" text @click="detailsDialog = false">اغلاق</v-btn>
           <v-btn color="blue darken-1" text @click="addLap()" :loading="loading2">حفظ</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <v-dialog v-model="detailsDialog2" width="400" persistent>
-      <v-card>
-        <v-toolbar dark color="primary">
-          <v-toolbar-title>
-            <h3>تعديل تواصل</h3>
-          </v-toolbar-title>
-          <v-spacer />
-          <v-btn @click="detailsDialog2 = false" icon>
-            <v-icon>close</v-icon>
-          </v-btn>
-        </v-toolbar>
-        <br />
-        <v-container>
-          <v-row>
-            <v-col cols="12" sm="12" md="12">
-              <v-text-field
-                outlined
-                label="اسم التواصل : "
-                class="mx-2"
-                v-model="name"
-                :rules="[v => !!v || 'هذا الحقل مطلوب']"
-              />
-              <v-text-field
-                type="number"
-                outlined
-                label="رقم الهاتف : "
-                v-model="phone"
-                :rules="numRules"
-              />
-            </v-col>
-          </v-row>
-          <br />
-        </v-container>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="red darken-1" text @click="detailsDialog2 = false">اغلاق</v-btn>
-          <v-btn color="blue darken-1" text @click="editInfo()" :loading="loading2">حفظ</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -149,85 +134,40 @@ import axios from "axios";
 export default {
   data() {
     return {
-      name: "",
-      phone: "",
-      numRules: [
-        v => !!v || "رقم الهاتف مطلوب",
-        v => (v || "").indexOf(" ") < 0 || "المسافات غير مسموحة",
-        v => (v && v.length <= 11) || "يجب ان يتكون رقم الهاتف اقل من 11 رقم "
-      ],
-
+      title: "",
+      linkUrl: "",
+      details: "",
+      modal: false,
+      show1: false,
       search: "",
       loading2: false,
       detailsDialog: false,
-      detailsDialog2: false,
       page: 1,
       pageCount: 0,
       itemsPerPage: 10,
       headers: [
         { sortable: false },
-        { text: "الاسم ", value: "name" },
-        { text: "رقم الهاتف", value: "contact" },
+        { text: "العنوان", value: "title" },
+        // { text: "نوع الفيديو", value: "details" },
+        { text: "الرابط", value: "link" },
         { text: "العمليات", value: "actions" }
       ],
       items: [],
       coontractCount: [],
-      loading: false,
-      editId: ""
+      loading: false
     };
   },
   methods: {
-    editInfo() {
-      if (this.name && this.phone) {
-        this.loading2 = true;
-        const cityData = {
-          id: this.editId,
-          name: this.name,
-          contact: parseInt(this.phone)
-        };
-        axios
-          .put("contact", cityData, {
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-              access_token: `Bearer ${localStorage.getItem("tokin")}`
-            }
-          })
-          .then(res => {
-            this.rnData();
-            this.loading2 = false;
-            this.detailsDialog2 = false;
-            Swal.fire({
-              title: "تمت عملية التعديل بنجاح",
-              icon: "success",
-              confirmButtonText: "اغلاق"
-            });
-          })
-          .catch(err => {
-            this.loading2 = false;
-            Swal.fire({
-              title: "اسم التواصل موجود",
-              icon: "error",
-              confirmButtonText: "اغلاق"
-            });
-          });
-      } else {
-        Swal.fire({
-          title: "تاكد من ادخال المعلومات",
-          icon: "error",
-          confirmButtonText: "اغلاق"
-        });
-      }
-    },
     addLap() {
-      if (this.name && this.phone) {
+      if (this.details && this.title && this.linkUrl) {
         this.loading2 = true;
-        const cityData = {
-          name: this.name,
-          contact: parseInt(this.phone)
+        const userData = {
+          title: this.title,
+          details: this.details,
+          link: this.linkUrl
         };
         axios
-          .post("contact", cityData, {
+          .post("consept", userData, {
             headers: {
               "Content-Type": "application/json",
               Accept: "application/json",
@@ -247,7 +187,7 @@ export default {
           .catch(err => {
             this.loading2 = false;
             Swal.fire({
-              title: "اسم التواصل موجود",
+              title: "فشلت عملية الاضافة",
               icon: "error",
               confirmButtonText: "اغلاق"
             });
@@ -263,7 +203,7 @@ export default {
     rnData() {
       this.loading = true;
       axios
-        .get("contact", {
+        .get("consept", {
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
@@ -271,13 +211,14 @@ export default {
           }
         })
         .then(res => {
-          this.loading = false;
           this.items = res.data;
+          this.loading = false;
         })
         .catch(err => {
           this.loading = false;
         });
     },
+
     delet(id) {
       Swal.fire({
         title: "هل انت متاكد من حذف المختبر؟",
@@ -290,7 +231,7 @@ export default {
       }).then(result => {
         if (result.value) {
           axios
-            .delete("contact/" + id, {
+            .delete("consept/" + id, {
               headers: {
                 "Content-Type": "application/json",
                 Accept: "application/json",
@@ -315,15 +256,8 @@ export default {
         }
       });
     },
-    edit(id) {
-      for (let i = 0; i < this.items.length; i++) {
-        if (id == this.items[i].id) {
-          this.name = this.items[i].name;
-          this.phone = this.items[i].contact;
-          this.editId = this.items[i].id;
-        }
-      }
-      this.detailsDialog2 = true;
+    edit() {
+      this.detailsDialog = true;
     }
   },
   created() {

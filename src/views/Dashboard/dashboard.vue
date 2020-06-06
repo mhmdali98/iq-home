@@ -57,7 +57,6 @@
 
               <v-icon
                 :color="checking ? 'red lighten-2' : '#55ab88'"
-                class="mr-12"
                 size="50"
                 @click="takePulse"
               >mdi-chart-bar-stacked</v-icon>
@@ -94,7 +93,6 @@
 
               <v-icon
                 :color="checking ? 'red lighten-2' : '#55ab88'"
-                class="mr-12"
                 size="50"
                 @click="takePulse"
               >mdi-charity</v-icon>
@@ -131,7 +129,6 @@
 
               <v-icon
                 :color="checking ? 'red lighten-2' : '#55ab88'"
-                class="mr-12"
                 size="50"
                 @click="takePulse"
               >mdi-book-account-outline</v-icon>

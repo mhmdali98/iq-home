@@ -252,6 +252,8 @@ export default {
         axios
           .put("user", userData, {
             headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
               access_token: `Bearer ${localStorage.getItem("tokin")}`
             }
           })
@@ -299,6 +301,8 @@ export default {
         axios
           .post("user", userData, {
             headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
               access_token: `Bearer ${localStorage.getItem("tokin")}`
             }
           })
@@ -332,6 +336,8 @@ export default {
       this.loading = true;
       axios
         .get("user", {
+          "Content-Type": "application/json",
+          Accept: "application/json",
           headers: { access_token: `Bearer ${localStorage.getItem("tokin")}` }
         })
         .then(res => {

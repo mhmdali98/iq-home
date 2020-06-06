@@ -23,7 +23,7 @@
               :type="show1 ? 'text' : 'password'"
               name="input-10-1"
               label="كلمة المرور"
-              hint="8 رموز على الأقل"
+              hint="6 رموز على الأقل"
               counter
               @click:append="show1 = !show1"
             ></v-text-field>
@@ -71,7 +71,7 @@ export default {
     password: "",
     rules: {
       required: value => !!value || "مطلوب.",
-      min: v => v.length >= 8 || "8 رموز على الاقل"
+      min: v => v.length >= 6 || "6 رموز على الاقل"
     }
   }),
 

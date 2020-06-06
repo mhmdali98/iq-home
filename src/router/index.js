@@ -65,6 +65,16 @@ const routes = [{
                 name: 'notification',
                 component: () => import('../views/admin/notification')
             },
+            {
+                path: 'media',
+                name: 'media',
+                component: () => import('../views/admin/media')
+            },
+            {
+                path: 'consept',
+                name: 'consept',
+                component: () => import('../views/admin/consept')
+            },
         ]
     }
 ]
