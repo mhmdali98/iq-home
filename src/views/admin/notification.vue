@@ -32,22 +32,36 @@
             :search="search"
           >
             <template v-slot:item.actions="{ item }">
-              <!-- <v-tooltip bottom>
+              <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
                   <v-btn class="indigo--text" icon v-on="on" large>
                     <v-icon l @click="delet(item.id)" color="red">mdi-delete-outline</v-icon>
                   </v-btn>
                 </template>
                 <span>حذف</span>
-              </v-tooltip>-->
-              <v-tooltip bottom>
+              </v-tooltip>
+              <v-tooltip bottom v-if="item.status == 'WAITING'">
                 <template v-slot:activator="{ on }">
                   <v-btn class="indigo--text" icon v-on="on" large>
-                    <v-icon l @click="edit(item.id)" color="green">mdi-pencil-outline</v-icon>
+                    <v-icon l @click="edit(item.id)" color="green">mdi-check-outline</v-icon>
                   </v-btn>
                 </template>
-                <span>تعديل</span>
+                <span>تاكيد الاشعار</span>
               </v-tooltip>
+            </template>
+            <template v-slot:item.status="{ item }">
+              <v-chip
+                class="ma-2"
+                color="amber darken-1"
+                text-color="white"
+                v-if="item.status == 'WAITING'"
+              >{{ item.status }}</v-chip>
+              <v-chip
+                class="ma-2"
+                color="teal darken-1"
+                text-color="white"
+                v-if="item.status != 'WAITING'"
+              >{{ item.status }}</v-chip>
             </template>
             <template v-slot:no-data>
               <h3>لاتوجد بيانات لعرضها</h3>
@@ -103,7 +117,7 @@
               ></v-textarea>
               <v-file-input
                 v-model="file"
-                label="اختار صورة ال logo"
+                label="اختار الصورة "
                 outlined
                 :rules="[v => !!v || 'هذا الحقل مطلوب']"
               ></v-file-input>
@@ -121,7 +135,7 @@
                   <h3 class="mb-2">سكشن رقم ({{ k + 1 }}) :</h3>
                   <v-file-input
                     v-model="input.file"
-                    label="اختار صورة ال logo"
+                    label="اختار الصورة"
                     outlined
                     :rules="[v => !!v || 'هذا الحقل مطلوب']"
                   ></v-file-input>
@@ -248,8 +262,8 @@ export default {
         { text: "النوع", value: "type" },
         { text: "العنوان", value: "title" },
         // { text: "عنوان مصغر", value: "subtitle" },
-        { text: "  الحالة ", value: "status" }
-        // { text: "العمليات", value: "actions" }
+        { text: "  الحالة ", value: "status" },
+        { text: "العمليات", value: "actions" }
       ],
       items: [],
       coontractCount: [],
@@ -301,34 +315,26 @@ export default {
     },
     async uploadImg2() {
       for (let i = 0; i < this.sections.length; i++) {
-        if (this.sections[i].file) {
-          let formData = new FormData();
-          formData.append("file", this.sections[i].file);
-          // console.log(formData);
-          await axios
-            .post("file/upload", formData, {
-              headers: {
-                "Content-Type": "multipart/form-data",
-                Accept: "multipart/form-data",
-                access_token: `Bearer ${localStorage.getItem("tokin")}`
-              }
-            })
-            .then(res => {
-              //   console.log(res);
-              this.sections[i].cover = res.data.url;
-            })
-            .catch(err => {
-              Swal.fire("خطا في رفع الصورة");
-              this.loading2 = false;
-            });
-        } else {
-          Swal.fire({
-            title: "تاكد من اختيار كل الصور",
-            icon: "error",
-            confirmButtonText: "اغلاق"
+        let formData = new FormData();
+        formData.append("file", this.sections[i].file);
+        // console.log(formData);
+        await axios
+          .post("file/upload", formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Accept: "multipart/form-data",
+              access_token: `Bearer ${localStorage.getItem("tokin")}`
+            }
+          })
+          .then(res => {
+            //   console.log(res);
+            this.sections[i].cover = res.data.url;
+          })
+          .catch(err => {
+            // Swal.fire("خطا في رفع الصورة");
+            this.loading2 = false;
           });
-          break;
-        }
+
         let j = i;
         j++;
         if (this.sections.length == j) {
@@ -432,7 +438,7 @@ export default {
     rnData() {
       this.loading = true;
       axios
-        .get("notification/0/1000", {
+        .get("notification/all/0/1000", {
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
@@ -467,7 +473,7 @@ export default {
     },
     delet(id) {
       Swal.fire({
-        title: "هل انت متاكد من حذف المختبر؟",
+        title: "هل انت متاكد من حذف الاشعار؟",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
@@ -477,7 +483,13 @@ export default {
       }).then(result => {
         if (result.value) {
           axios
-            .delete("Lab/deleteLab?ID=" + id)
+            .delete("notification/" + id, {
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                access_token: `Bearer ${localStorage.getItem("tokin")}`
+              }
+            })
             .then(res => {
               this.rnData();
               Swal.fire({
@@ -497,16 +509,45 @@ export default {
       });
     },
     edit(id) {
-      for (let i = 0; i < this.items.length; i++) {
-        if (id == this.items[i].id) {
-          this.name = this.items[i].question;
-          this.phone = this.items[i].shortAnswer;
-          this.img_path = this.items[i].logo;
-          this.details = this.items[i].answer;
-          this.editId = this.items[i].id;
+      Swal.fire({
+        title: "هل انت متاكد من تاكيد الاشعار؟",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "نعم",
+        cancelButtonText: "لا"
+      }).then(result => {
+        if (result.value) {
+          axios
+            .post(
+              "notification/push/" + id,
+              {},
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                  Accept: "application/json",
+                  access_token: `Bearer ${localStorage.getItem("tokin")}`
+                }
+              }
+            )
+            .then(res => {
+              this.rnData();
+              Swal.fire({
+                title: "تمت عملية التاكيد بنجاح",
+                icon: "success",
+                confirmButtonText: "اغلاق"
+              });
+            })
+            .catch(err => {
+              Swal.fire({
+                title: "فشلت عمليت التاكيد",
+                icon: "error",
+                confirmButtonText: "اغلاق"
+              });
+            });
         }
-      }
-      this.detailsDialog2 = true;
+      });
     }
   },
   created() {

@@ -362,7 +362,7 @@ export default {
     },
     delet(id) {
       Swal.fire({
-        title: "هل انت متاكد من حذف المختبر؟",
+        title: "هل انت متاكد من الحذف؟",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
